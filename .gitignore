@@ -427,3 +427,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# React / Vite
+node_modules/
+dist/
+.env
+.env.local
+npm-debug.log*
