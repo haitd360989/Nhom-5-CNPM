@@ -1,0 +1,15 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    app_name: str = "AI Personalized Learning Platform"
+    database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/learning_platform"
+    jwt_secret_key: str = "CHANGE_ME"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+settings = Settings()
