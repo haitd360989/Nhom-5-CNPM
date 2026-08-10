@@ -1,14 +1,17 @@
+# Sơ đồ Quan hệ Thực thể (ERD) - TASK 2
+
+```mermaid
 erDiagram
-    USERS ||--o{ DIAGNOSTIC_SESSIONS : "thực hiện"
-    USERS ||--o{ ROADMAPS : "sở hữu"
-    DIAGNOSTIC_SESSIONS ||--o{ SESSION_ANSWERS : "chứa chi tiết"
-    QUESTIONS ||--o{ SESSION_ANSWERS : "được trả lời"
-    ROADMAPS ||--o{ DAILY_TASKS : "chứa danh sách"
+    USERS ||--o{ TESTS : "thực hiện"
+    USERS ||--o{ STUDY_PLANS : "sở hữu"
+    TESTS ||--o{ USER_ANSWERS : "chứa"
+    QUESTIONS ||--o{ USER_ANSWERS : "được trả lời"
+    STUDY_PLANS ||--o{ PLAN_TASKS : "bao gồm"
 
     USERS {
         bigint id PK
         string email UK
-        string password_hash
+        string password
         string full_name
         string role
         string status
@@ -19,8 +22,8 @@ erDiagram
     QUESTIONS {
         bigint id PK
         text content
-        json options
-        string correct_option
+        jsonb choices
+        string correct_answer
         string subject
         string topic
         string difficulty
@@ -28,7 +31,7 @@ erDiagram
         timestamp created_at
     }
 
-    DIAGNOSTIC_SESSIONS {
+    TESTS {
         bigint id PK
         bigint user_id FK
         numeric score
@@ -37,16 +40,16 @@ erDiagram
         timestamp completed_at
     }
 
-    SESSION_ANSWERS {
+    USER_ANSWERS {
         bigint id PK
-        bigint session_id FK
+        bigint test_id FK
         bigint question_id FK
-        string selected_option
+        string user_answer
         boolean is_correct
         timestamp answered_at
     }
 
-    ROADMAPS {
+    STUDY_PLANS {
         bigint id PK
         bigint user_id FK
         string title
@@ -58,13 +61,14 @@ erDiagram
         timestamp updated_at
     }
 
-    DAILY_TASKS {
+    PLAN_TASKS {
         bigint id PK
-        bigint roadmap_id FK
-        integer day_number
-        string task_name
-        string task_type
-        bigint target_id
+        bigint plan_id FK
+        integer day_no
+        string title
+        string type
+        bigint ref_id
         string status
         timestamp created_at
     }
+```
