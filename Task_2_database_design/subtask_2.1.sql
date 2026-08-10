@@ -1,70 +1,80 @@
-erDiagram
-    USERS ||--o{ DIAGNOSTIC_SESSIONS : "thực hiện"
-    USERS ||--o{ ROADMAPS : "sở hữu"
-    DIAGNOSTIC_SESSIONS ||--o{ SESSION_ANSWERS : "chứa chi tiết"
-    QUESTIONS ||--o{ SESSION_ANSWERS : "được trả lời"
-    ROADMAPS ||--o{ DAILY_TASKS : "chứa danh sách"
 
-    USERS {
-        bigint id PK
-        string email UK
-        string password_hash
-        string full_name
-        string role
-        string status
-        timestamp created_at
-        timestamp updated_at
-    }
+-- 1. XÓA BẢNG CŨ ĐỂ KHỞI TẠO LẠI 
+DROP TABLE IF EXISTS plan_tasks CASCADE;
+DROP TABLE IF EXISTS study_plans CASCADE;
+DROP TABLE IF EXISTS user_answers CASCADE;
+DROP TABLE IF EXISTS tests CASCADE;
+DROP TABLE IF EXISTS questions CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
-    QUESTIONS {
-        bigint id PK
-        text content
-        json options
-        string correct_option
-        string subject
-        string topic
-        string difficulty
-        text explanation
-        timestamp created_at
-    }
+-- 2. TẠO CÁC BẢNG DỮ LIỆU
 
-    DIAGNOSTIC_SESSIONS {
-        bigint id PK
-        bigint user_id FK
-        numeric score
-        string status
-        timestamp started_at
-        timestamp completed_at
-    }
+-- Bảng 1: USERS
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'STUDENT' CHECK (role IN ('STUDENT', 'ADMIN', 'TEACHER')),
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
-    SESSION_ANSWERS {
-        bigint id PK
-        bigint session_id FK
-        bigint question_id FK
-        string selected_option
-        boolean is_correct
-        timestamp answered_at
-    }
+-- Bảng 2: QUESTIONS
+CREATE TABLE questions (
+    id BIGSERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    choices JSONB NOT NULL, 
+    correct_answer VARCHAR(255) NOT NULL,
+    subject VARCHAR(50) NOT NULL,
+    topic VARCHAR(100),
+    difficulty VARCHAR(20) DEFAULT 'MEDIUM' CHECK (difficulty IN ('EASY', 'MEDIUM', 'HARD')),
+    explanation TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
-    ROADMAPS {
-        bigint id PK
-        bigint user_id FK
-        string title
-        numeric target_score
-        integer total_days
-        integer current_day
-        string status
-        timestamp created_at
-        timestamp updated_at
-    }
+-- Bảng 3: TESTS 
+CREATE TABLE tests (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    score NUMERIC(5, 2) DEFAULT 0.00,
+    status VARCHAR(20) DEFAULT 'IN_PROGRESS' CHECK (status IN ('IN_PROGRESS', 'COMPLETED', 'CANCELLED')),
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP WITH TIME ZONE
+);
 
-    DAILY_TASKS {
-        bigint id PK
-        bigint roadmap_id FK
-        integer day_number
-        string task_name
-        string task_type
-        bigint target_id
-        string status
-        timestamp created_at
-    }
+-- Bảng 4: USER_ANSWERS
+CREATE TABLE user_answers (
+    id BIGSERIAL PRIMARY KEY,
+    test_id BIGINT NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
+    question_id BIGINT NOT NULL REFERENCES questions(id) ON DELETE RESTRICT,
+    user_answer VARCHAR(255),
+    is_correct BOOLEAN DEFAULT FALSE,
+    answered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng 5: STUDY_PLANS 
+CREATE TABLE study_plans (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    target_score NUMERIC(5, 2),
+    total_days INTEGER NOT NULL,
+    current_day INTEGER DEFAULT 1,
+    status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'COMPLETED', 'DROPPED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng 6: PLAN_TASKS 
+CREATE TABLE plan_tasks (
+    id BIGSERIAL PRIMARY KEY,
+    plan_id BIGINT NOT NULL REFERENCES study_plans(id) ON DELETE CASCADE,
+    day_no INTEGER NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL, 
+    ref_id BIGINT, 
+    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'DONE', 'SKIPPED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
