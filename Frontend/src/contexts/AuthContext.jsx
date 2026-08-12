@@ -1,2 +1,36 @@
-import{createContext,useContext,useMemo,useState}from'react';import{HOMES,LABELS,ROLES}from'../config/roles.js';const C=createContext(null),KEY='swr-act-user';const initial=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch{return null}};
-export function AuthProvider({children}){const[user,setUser]=useState(initial);const login=role=>{if(!Object.values(ROLES).includes(role))throw Error('Invalid role');const u={id:`mock-${role}`,name:LABELS[role],role};localStorage.setItem(KEY,JSON.stringify(u));setUser(u);return HOMES[role]};const logout=()=>{localStorage.removeItem(KEY);setUser(null)};return <C.Provider value={useMemo(()=>({user,login,logout,isAuthenticated:!!user}),[user])}>{children}</C.Provider>};export const useAuth=()=>useContext(C)
+import { createContext, useContext, useMemo, useState } from "react";
+import { HOMES, LABELS, ROLES } from "../config/roles.js";
+const C = createContext(null),
+  KEY = "swr-act-user";
+const initial = () => {
+  try {
+    return JSON.parse(localStorage.getItem(KEY));
+  } catch {
+    return null;
+  }
+};
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(initial);
+  const login = (role) => {
+    if (!Object.values(ROLES).includes(role)) throw Error("Invalid role");
+    const u = { id: `mock-${role}`, name: LABELS[role], role };
+    localStorage.setItem(KEY, JSON.stringify(u));
+    setUser(u);
+    return HOMES[role];
+  };
+  const logout = () => {
+    localStorage.removeItem(KEY);
+    setUser(null);
+  };
+  return (
+    <C.Provider
+      value={useMemo(
+        () => ({ user, login, logout, isAuthenticated: !!user }),
+        [user],
+      )}
+    >
+      {children}
+    </C.Provider>
+  );
+}
+export const useAuth = () => useContext(C);

@@ -1,2 +1,36 @@
-import DashboardIcon from'@mui/icons-material/DashboardRounded';import PeopleIcon from'@mui/icons-material/ManageAccountsRounded';import SettingsIcon from'@mui/icons-material/SettingsRounded';import QuizIcon from'@mui/icons-material/QuizRounded';import BookIcon from'@mui/icons-material/MenuBookRounded';import AnalyticsIcon from'@mui/icons-material/AnalyticsRounded';import CheckIcon from'@mui/icons-material/FactCheckRounded';import RouteIcon from'@mui/icons-material/RouteRounded';import PracticeIcon from'@mui/icons-material/FitnessCenterRounded';import TutorIcon from'@mui/icons-material/SmartToyRounded';import ProgressIcon from'@mui/icons-material/TrendingUpRounded';
-export const menuConfig={ADMIN:[['Tổng quan','/admin',DashboardIcon],['Quản lý tài khoản','/admin/users',PeopleIcon],['Cấu hình hệ thống','/admin/settings',SettingsIcon]],TEACHER:[['Tổng quan','/teacher',DashboardIcon],['Ngân hàng câu hỏi','/teacher/questions',QuizIcon],['Kho tri thức','/teacher/knowledge',BookIcon],['Phân tích học sinh','/teacher/analytics',AnalyticsIcon]],STUDENT:[['Tổng quan','/student',DashboardIcon],['Đánh giá năng lực','/student/assessment',CheckIcon],['Lộ trình học','/student/roadmap',RouteIcon],['Luyện tập','/student/practice',PracticeIcon],['AI Tutor','/student/tutor',TutorIcon],['Tiến độ','/student/progress',ProgressIcon]],PARENT:[['Tổng quan','/parent',DashboardIcon],['Tiến độ của con','/parent/progress',ProgressIcon]]}
+import DashboardIcon from "@mui/icons-material/DashboardRounded";
+import PeopleIcon from "@mui/icons-material/ManageAccountsRounded";
+import SettingsIcon from "@mui/icons-material/SettingsRounded";
+import QuizIcon from "@mui/icons-material/QuizRounded";
+import BookIcon from "@mui/icons-material/MenuBookRounded";
+import AnalyticsIcon from "@mui/icons-material/AnalyticsRounded";
+import CheckIcon from "@mui/icons-material/FactCheckRounded";
+import RouteIcon from "@mui/icons-material/RouteRounded";
+import PracticeIcon from "@mui/icons-material/FitnessCenterRounded";
+import TutorIcon from "@mui/icons-material/SmartToyRounded";
+import ProgressIcon from "@mui/icons-material/TrendingUpRounded";
+export const menuConfig = {
+  ADMIN: [
+    ["Tổng quan", "/admin", DashboardIcon],
+    ["Quản lý tài khoản", "/admin/users", PeopleIcon],
+    ["Cấu hình hệ thống", "/admin/settings", SettingsIcon],
+  ],
+  TEACHER: [
+    ["Tổng quan", "/teacher", DashboardIcon],
+    ["Ngân hàng câu hỏi", "/teacher/questions", QuizIcon],
+    ["Kho tri thức", "/teacher/knowledge", BookIcon],
+    ["Phân tích học sinh", "/teacher/analytics", AnalyticsIcon],
+  ],
+  STUDENT: [
+    ["Tổng quan", "/student", DashboardIcon],
+    ["Đánh giá năng lực", "/student/assessment", CheckIcon],
+    ["Lộ trình học", "/student/roadmap", RouteIcon],
+    ["Luyện tập", "/student/practice", PracticeIcon],
+    ["AI Tutor", "/student/tutor", TutorIcon],
+    ["Tiến độ", "/student/progress", ProgressIcon],
+  ],
+  PARENT: [
+    ["Tổng quan", "/parent", DashboardIcon],
+    ["Tiến độ của con", "/parent/progress", ProgressIcon],
+  ],
+};
