@@ -2,17 +2,20 @@ from fastapi import FastAPI
 
 from app.api import router as auth_router
 from app.db import Base, engine
+from app.rag.router import router as rag_router
 
 app = FastAPI(
     title="AI Personalized Learning Platform - Backend",
-    version="1.1.0",
-    description="TASK 3 Subtask 1 - Authentication + JWT",
+    version="1.2.0",
+    description="TASK 3 Subtask 1 - Authentication + JWT & TASK 5 Subtask 5.3 - RAG Pipeline",
 )
 
 # Standalone development/test initialization. In the integrated project,
 # Task 2's migration remains the database schema source of truth.
 Base.metadata.create_all(bind=engine)
+
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(rag_router)
 
 # When Subtask 2 is extracted into the same root, its router is picked up
 # automatically. Subtask 1 itself remains runnable without Subtask 2.
