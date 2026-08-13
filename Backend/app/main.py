@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import router as auth_router
 from app.db import Base, engine
@@ -7,6 +8,14 @@ app = FastAPI(
     title="AI Personalized Learning Platform - Backend",
     version="1.1.0",
     description="TASK 3 Subtask 1 - Authentication + JWT",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Standalone development/test initialization. In the integrated project,

@@ -37,16 +37,16 @@ export default function Header({ toggle }) {
           sx={{ display: { xs: "none", sm: "block" }, mr: 1 }}
         >
           <Typography variant="body2" fontWeight={700}>
-            {user.name}
+            {user.full_name}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {user.role}
           </Typography>
         </Box>
-        <Avatar sx={{ bgcolor: "primary.main" }}>{user.name[0]}</Avatar>
+        <Avatar sx={{ bgcolor: "primary.main" }}>{user.full_name[0]}</Avatar>
         <IconButton
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
             navigate("/login");
           }}
         >

@@ -1,33 +1,60 @@
-import { createContext, useContext, useMemo, useState } from "react";
-import { HOMES, LABELS, ROLES } from "../config/roles.js";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { authApi } from "../api.js";
+import { HOMES } from "../config/roles.js";
 
 const AuthContext = createContext(null);
-const STORAGE_KEY = "swr-act-user";
+const TOKEN_KEY = "swr-act-tokens";
 
-const getInitialUser = () => {
+const readTokens = () => {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return JSON.parse(localStorage.getItem(TOKEN_KEY));
   } catch {
     return null;
   }
 };
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(getInitialUser);
-  const login = (role) => {
-    if (!Object.values(ROLES).includes(role)) throw Error("Invalid role");
-    const authenticatedUser = { id: `mock-${role}`, name: LABELS[role], role };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authenticatedUser));
-    setUser(authenticatedUser);
-    return HOMES[role];
+  const [tokens, setTokens] = useState(readTokens);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!tokens?.access_token) {
+      setLoading(false);
+      return;
+    }
+    authApi
+      .me(tokens.access_token)
+      .then(setUser)
+      .catch(() => {
+        localStorage.removeItem(TOKEN_KEY);
+        setTokens(null);
+      })
+      .finally(() => setLoading(false));
+  }, [tokens?.access_token]);
+
+  const login = async (email, password) => {
+    const nextTokens = await authApi.login(email, password);
+    const nextUser = await authApi.me(nextTokens.access_token);
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(nextTokens));
+    setTokens(nextTokens);
+    setUser(nextUser);
+    return HOMES[nextUser.role];
   };
-  const logout = () => {
-    localStorage.removeItem(STORAGE_KEY);
+
+  const register = (data) => authApi.register(data);
+
+  const logout = async () => {
+    if (tokens?.access_token)
+      await authApi.logout(tokens.access_token).catch(() => {});
+    localStorage.removeItem(TOKEN_KEY);
+    setTokens(null);
     setUser(null);
   };
+
   const value = useMemo(
-    () => ({ user, login, logout, isAuthenticated: !!user }),
-    [user],
+    () => ({ user, login, register, logout, loading, isAuthenticated: !!user }),
+    [user, loading, tokens],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
