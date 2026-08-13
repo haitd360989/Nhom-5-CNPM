@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import App from "./App.jsx";
 import theme from "./config/theme.js";
-import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { AuthProvider } from "./features/auth/context/AuthContext.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider theme={theme}>

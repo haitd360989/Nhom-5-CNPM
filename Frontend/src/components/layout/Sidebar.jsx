@@ -11,8 +11,8 @@ import {
   Typography,
 } from "@mui/material";
 import { NavLink } from "react-router-dom";
-import { menuConfig } from "../../config/menuConfig.jsx";
-import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useAuth } from "../../features/auth/context/AuthContext.jsx";
+import { menuConfig } from "../../features/index.js";
 export const WIDTH = 272;
 export default function Sidebar({ open, onClose }) {
   const { user } = useAuth();

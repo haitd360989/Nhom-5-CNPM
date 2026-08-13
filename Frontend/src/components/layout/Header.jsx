@@ -9,11 +9,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useAuth } from "../../features/auth/context/AuthContext.jsx";
 import { WIDTH } from "./Sidebar.jsx";
 export default function Header({ toggle }) {
   const { user, logout } = useAuth(),
-    nav = useNavigate();
+    navigate = useNavigate();
   return (
     <AppBar
       position="fixed"
@@ -47,7 +47,7 @@ export default function Header({ toggle }) {
         <IconButton
           onClick={() => {
             logout();
-            nav("/login");
+            navigate("/login");
           }}
         >
           <LogoutIcon />

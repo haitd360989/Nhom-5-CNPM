@@ -12,17 +12,19 @@ import {
   Typography,
 } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
-import { HOMES, LABELS, ROLES } from "../../config/roles.js";
-import { useAuth } from "../../contexts/AuthContext.jsx";
+import { HOMES, LABELS, ROLES } from "../config/roles.js";
+import { useAuth } from "../context/AuthContext.jsx";
+
 const choices = [
   [ROLES.ADMIN, AdminIcon, "Quản lý tài khoản và cấu hình hệ thống"],
   [ROLES.TEACHER, TeacherIcon, "Quản lý học liệu, câu hỏi và phân tích"],
   [ROLES.STUDENT, StudentIcon, "Học tập, luyện tập và theo dõi lộ trình"],
   [ROLES.PARENT, ParentIcon, "Theo dõi tiến độ của con (chỉ xem)"],
 ];
+
 export default function LoginPage() {
-  const { user, login } = useAuth(),
-    nav = useNavigate();
+  const { user, login } = useAuth();
+  const navigate = useNavigate();
   if (user) return <Navigate to={HOMES[user.role]} replace />;
   return (
     <Box
@@ -43,7 +45,7 @@ export default function LoginPage() {
           </Typography>
         </Stack>
         <Grid container spacing={2}>
-          {choices.map(([role, Icon, desc]) => (
+          {choices.map(([role, Icon, description]) => (
             <Grid key={role} size={{ xs: 12, sm: 6 }}>
               <Paper variant="outlined" sx={{ p: 3, height: "100%" }}>
                 <Stack spacing={2}>
@@ -51,10 +53,13 @@ export default function LoginPage() {
                   <Box>
                     <Typography variant="h6">{LABELS[role]}</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {desc}
+                      {description}
                     </Typography>
                   </Box>
-                  <Button variant="contained" onClick={() => nav(login(role))}>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate(login(role))}
+                  >
                     Đăng nhập {LABELS[role]}
                   </Button>
                 </Stack>

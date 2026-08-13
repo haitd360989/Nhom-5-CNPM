@@ -1,6 +1,6 @@
 import { Box, Chip, Paper, Stack, Typography } from "@mui/material";
-import { LABELS } from "../../config/roles.js";
-import { useAuth } from "../../contexts/AuthContext.jsx";
+import { LABELS } from "../../features/auth/config/roles.js";
+import { useAuth } from "../../features/auth/context/AuthContext.jsx";
 export default function PagePlaceholder({ title, description }) {
   const { user } = useAuth();
   return (
