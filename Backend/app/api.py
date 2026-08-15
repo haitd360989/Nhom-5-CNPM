@@ -9,7 +9,7 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
-    hash_password,
+    hash_password,   # <-- vẫn giữ tên, nhưng đã chuyển sang bcrypt
     verify_password,
 )
 from app.db import get_db
@@ -60,7 +60,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     user = User(
         email=email,
         full_name=payload.full_name,
-        password=hash_password(payload.password),
+        password=hash_password(payload.password),  # <-- sử dụng hash_password mới (bcrypt)
         role=UserRole.STUDENT.value,
         status=UserStatus.ACTIVE.value,
         created_at=now,
@@ -72,6 +72,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     return user
 
 
+# Các endpoint login, refresh, me, logout giữ nguyên không thay đổi
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     email = str(payload.email).lower()
@@ -86,7 +87,6 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
     user = _get_user_from_token(payload.refresh_token, "refresh", db)
-    # Re-issue using the current DB role, so a role change takes effect immediately.
     return issue_tokens(user)
 
 
@@ -112,6 +112,4 @@ def logout(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
         raise
     except InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid or expired access token")
-    # JWTs are stateless. The client must discard both tokens. Server-side
-    # refresh-token revocation requires a shared store, which is outside TASK 2's schema.
     return {"message": "Logout acknowledged"}
