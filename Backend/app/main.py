@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import router as auth_router
 from app.db import Base, engine
 from app.rag.router import router as rag_router
-from app.routes.diagnostic import router as diagnostic_router
+from app.diagnostic_routes.diagnostic import router as diagnostic_router
 
 app = FastAPI(
     title="AI Personalized Learning Platform - Backend",
@@ -22,7 +22,7 @@ app.add_middleware(
 
 # Standalone development/test initialization. In the integrated project,
 # Task 2's migration remains the database schema source of truth.
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(rag_router)

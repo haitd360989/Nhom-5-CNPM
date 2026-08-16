@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
-from sqlalchemy import DateTime, String, Text, JSON, Integer, Boolean, ForeignKey
+from sqlalchemy import DateTime, String, Text, JSON, Integer, Numeric, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -21,12 +22,6 @@ class UserStatus(str, Enum):
 
 
 class User(Base):
-    """Exact mapping for TASK 2's executable `users` table.
-
-    TASK 2 uses `password` and `status`, not `password_hash` and `is_active`.
-    The password column still contains only a secure Argon2 hash.
-    """
-
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -35,28 +30,44 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(100), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default=UserRole.STUDENT.value)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default=UserStatus.ACTIVE.value)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
 
 class Question(Base):
     __tablename__ = "questions"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    options: Mapped[dict] = mapped_column(JSON, nullable=False)
-    correct_answer: Mapped[str] = mapped_column(String(10), nullable=False)
-    category: Mapped[str] = mapped_column(String(100), nullable=False)
+    choices: Mapped[dict] = mapped_column(JSON, nullable=False)
+    correct_answer: Mapped[str] = mapped_column(String(255), nullable=False)
+    subject: Mapped[str] = mapped_column(String(50), nullable=False)
+    topic: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    difficulty: Mapped[str] = mapped_column(String(20), default="MEDIUM")
+    explanation: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class Test(Base):
+    __tablename__ = "tests"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    score: Mapped[float] = mapped_column(Numeric(5, 2), default=0.00)
+    status: Mapped[str] = mapped_column(String(20), default="IN_PROGRESS")
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class UserAnswer(Base):
     __tablename__ = "user_answers"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    answers: Mapped[list] = mapped_column(JSON, nullable=False)
-    score: Mapped[int] = mapped_column(Integer, nullable=False)
-    total_questions: Mapped[int] = mapped_column(Integer, nullable=False)
-    completion_time_seconds: Mapped[int] = mapped_column(Integer, nullable=False)
+    test_id: Mapped[int] = mapped_column(ForeignKey("tests.id"), nullable=False)
+    question_id: Mapped[int] = mapped_column(ForeignKey("questions.id"), nullable=False)
+    user_answer: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    is_correct: Mapped[bool] = mapped_column(Boolean, default=False)
+    answered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
 
 
 class StudyPlan(Base):
@@ -65,7 +76,12 @@ class StudyPlan(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    status: Mapped[str] = mapped_column(String(50), default="active")
+    target_score: Mapped[Optional[float]] = mapped_column(Numeric(5, 2), nullable=True)
+    total_days: Mapped[int] = mapped_column(Integer, nullable=False, default=30)
+    current_day: Mapped[int] = mapped_column(Integer, default=1)
+    status: Mapped[str] = mapped_column(String(20), default="ACTIVE")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
 
 
 class PlanTask(Base):
@@ -73,6 +89,9 @@ class PlanTask(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     plan_id: Mapped[int] = mapped_column(ForeignKey("study_plans.id"), nullable=False)
+    day_no: Mapped[int] = mapped_column(Integer, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    day_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    type: Mapped[str] = mapped_column(String(20), default="READING")
+    ref_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="PENDING")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)

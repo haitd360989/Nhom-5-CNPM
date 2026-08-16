@@ -1,11 +1,12 @@
+from datetime import datetime
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
 
 from app.db import get_db
-from app.models import User, UserRole, Question, UserAnswer, StudyPlan, PlanTask
-from app.rbac import get_current_user, require_roles
-from app.schemas.diagnostic import (
+from app.models import User, UserRole, Question, Test, UserAnswer, StudyPlan, PlanTask
+from app.rbac import require_roles
+from app.diagnostic_schemas.diagnostic import (
     QuestionOut,
     SubmitRequest,
     SubmitResponse,
@@ -37,7 +38,7 @@ def submit_diagnostic(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.STUDENT, UserRole.ADMIN))
 ):
-    """Nhận danh sách câu trả lời, thời gian làm bài, tính điểm thô và lưu vào bảng user_answers"""
+    """Nhận danh sách câu trả lời, lưu bài thi vào tests và chi tiết vào user_answers"""
     q_ids = [a.question_id for a in data.answers]
     if not q_ids:
         raise HTTPException(
@@ -52,17 +53,32 @@ def submit_diagnostic(
     total = len(data.answers)
     percentage = round((raw_score / total) * 100, 2) if total > 0 else 0.0
 
-    new_answer = UserAnswer(
+    # 1. Tạo phiên làm bài thi trong bảng tests
+    new_test = Test(
         user_id=current_user.id,
-        answers=[a.model_dump() for a in data.answers],
-        score=raw_score,
-        total_questions=total,
-        completion_time_seconds=data.completion_time_seconds
+        score=percentage,
+        status="COMPLETED",
+        completed_at=datetime.utcnow()
     )
-    db.add(new_answer)
+    db.add(new_test)
+    db.commit()
+    db.refresh(new_test)
+
+    # 2. Lưu chi tiết từng câu trả lời vào bảng user_answers
+    answers_to_insert = [
+        UserAnswer(
+            test_id=new_test.id,
+            question_id=a.question_id,
+            user_answer=a.selected_option,
+            is_correct=(correct_map.get(a.question_id) == a.selected_option)
+        )
+        for a in data.answers
+    ]
+    db.add_all(answers_to_insert)
     db.commit()
 
     return SubmitResponse(
+        test_id=new_test.id,
         user_id=current_user.id,
         raw_score=raw_score,
         total_questions=total,
@@ -81,16 +97,19 @@ def init_study_plan(
     new_plan = StudyPlan(
         user_id=current_user.id,
         title=f"Lộ trình cá nhân hóa - {data.target_goal}",
-        status="active"
+        target_score=data.target_score,
+        total_days=data.total_days or 30,
+        current_day=1,
+        status="ACTIVE"
     )
     db.add(new_plan)
     db.commit()
     db.refresh(new_plan)
 
     sample_tasks = [
-        PlanTask(plan_id=new_plan.id, title="Ôn tập kiến thức Toán định lượng cơ bản", day_number=1),
-        PlanTask(plan_id=new_plan.id, title="Luyện tập chuyên đề Logic & Bảng số liệu", day_number=2),
-        PlanTask(plan_id=new_plan.id, title="Rèn kỹ năng đọc hiểu văn bản & Ngôn ngữ", day_number=3),
+        PlanTask(plan_id=new_plan.id, title="Ôn tập kiến thức Toán định lượng cơ bản", day_no=1, type="READING", status="PENDING"),
+        PlanTask(plan_id=new_plan.id, title="Luyện tập chuyên đề Logic & Bảng số liệu", day_no=2, type="QUIZ", status="PENDING"),
+        PlanTask(plan_id=new_plan.id, title="Rèn kỹ năng đọc hiểu văn bản & Ngôn ngữ", day_no=3, type="VIDEO", status="PENDING"),
     ]
     db.add_all(sample_tasks)
     db.commit()
