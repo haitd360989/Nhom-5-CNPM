@@ -47,6 +47,7 @@ def submit_diagnostic(
         )
 
     questions = db.query(Question).filter(Question.id.in_(q_ids)).all()
+    question_map = {q.id: q for q in questions}
     correct_map = {q.id: q.correct_answer for q in questions}
 
     raw_score = sum(1 for a in data.answers if correct_map.get(a.question_id) == a.selected_option)
@@ -77,13 +78,31 @@ def submit_diagnostic(
     db.add_all(answers_to_insert)
     db.commit()
 
+    question_results = []
+    for answer in data.answers:
+        question = question_map.get(answer.question_id)
+        if question is None:
+            continue
+        selected_option = answer.selected_option or None
+        question_results.append({
+            "question_id": question.id,
+            "content": question.content,
+            "selected_option": selected_option,
+            "selected_answer": question.choices.get(selected_option) if selected_option else None,
+            "correct_option": question.correct_answer,
+            "correct_answer": question.choices.get(question.correct_answer, question.correct_answer),
+            "is_correct": selected_option == question.correct_answer,
+            "explanation": question.explanation,
+        })
+
     return SubmitResponse(
         test_id=new_test.id,
         user_id=current_user.id,
         raw_score=raw_score,
         total_questions=total,
         percentage=percentage,
-        message="Nộp bài test chẩn đoán thành công!"
+        message="Nộp bài test chẩn đoán thành công!",
+        question_results=question_results,
     )
 
 

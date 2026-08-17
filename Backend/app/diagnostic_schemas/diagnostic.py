@@ -23,6 +23,17 @@ class SubmitRequest(BaseModel):
     answers: List[AnswerItem]
 
 
+class QuestionResult(BaseModel):
+    question_id: int
+    content: str
+    selected_option: Optional[str] = None
+    selected_answer: Optional[str] = None
+    correct_option: str
+    correct_answer: str
+    is_correct: bool
+    explanation: Optional[str] = None
+
+
 class SubmitResponse(BaseModel):
     test_id: int
     user_id: int
@@ -30,6 +41,7 @@ class SubmitResponse(BaseModel):
     total_questions: int
     percentage: float
     message: str
+    question_results: List[QuestionResult]
 
 
 class StudyPlanInitRequest(BaseModel):
