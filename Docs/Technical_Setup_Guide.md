@@ -12,7 +12,7 @@ Hệ thống sử dụng cơ sở dữ liệu quan hệ PostgreSQL lưu trữ tr
 ### 1.2. Sơ đồ thực thể liên kết (Schema Visualizer)
 Minh chứng toàn bộ cấu trúc bảng và các quan hệ khóa ngoại (Foreign Keys) đã được triển khai hoàn chỉnh trên Supabase:
 
-![Sơ đồ kiến trúc CSDL Supabase](images/supabase_schema_visualizer.png)
+![Sơ đồ kiến trúc CSDL Supabase](Images/supabase_schema_visualizer.png)
 
 ## 2. CẤU HÌNH KẾT NỐI HỆ THỐNG (`config.py`)
 
