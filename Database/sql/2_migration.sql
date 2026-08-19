@@ -1,5 +1,10 @@
 -- SUBTASK 2.2: SCHEMA MIGRATIONS & ALTERATIONS
 
+-- The learning-goal UI supports scores up to 1,200. NUMERIC(5,2) only
+-- supports values below 1,000, so widen the existing column as well.
+ALTER TABLE study_plans
+    ALTER COLUMN target_score TYPE NUMERIC(7, 2);
+
 ALTER TABLE users 
     ADD CONSTRAINT chk_users_role CHECK (role IN ('STUDENT', 'TEACHER', 'ADMIN', 'PARENT')),
     ADD CONSTRAINT chk_users_status CHECK (status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED'));

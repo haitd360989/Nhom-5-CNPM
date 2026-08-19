@@ -76,7 +76,7 @@ class StudyPlan(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    target_score: Mapped[Optional[float]] = mapped_column(Numeric(5, 2), nullable=True)
+    target_score: Mapped[Optional[float]] = mapped_column(Numeric(7, 2), nullable=True)
     total_days: Mapped[int] = mapped_column(Integer, nullable=False, default=30)
     current_day: Mapped[int] = mapped_column(Integer, default=1)
     status: Mapped[str] = mapped_column(String(20), default="ACTIVE")

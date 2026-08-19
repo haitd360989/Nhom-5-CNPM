@@ -34,7 +34,7 @@ class SubmitResponse(BaseModel):
 
 class StudyPlanInitRequest(BaseModel):
     target_goal: Optional[str] = Field(default="Luyện thi ĐGNL", max_length=255)
-    target_score: Optional[float] = Field(default=850.0)
+    target_score: Optional[float] = Field(default=850.0, ge=1, le=1200)
     total_days: Optional[int] = Field(default=30, ge=1)
 
 
