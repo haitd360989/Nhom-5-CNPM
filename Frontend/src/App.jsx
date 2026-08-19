@@ -1,4 +1,5 @@
-import { Button, Container, Paper, Stack, Typography } from "@mui/material";
+import { Button, CircularProgress, Container, Paper, Stack, Typography } from "@mui/material";
+import { Suspense } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import PagePlaceholder from "./components/common/PagePlaceholder.jsx";
 import MainLayout from "./components/layout/MainLayout.jsx";
@@ -34,15 +35,27 @@ function featureRoutes(feature) {
       key={feature.role}
       element={<RoleRoute allowedRoles={[feature.role]} />}
     >
-      {feature.routes.map(([segment, title]) => (
+      {feature.routes.map(([segment, title, PageComponent]) => (
         <Route
           key={segment || "home"}
           path={segment ? `${feature.prefix}/${segment}` : feature.prefix}
           element={
-            <PagePlaceholder
-              title={title}
-              description="Nội dung minh họa cho khung giao diện G5PSC-18."
-            />
+            PageComponent ? (
+              <Suspense
+                fallback={
+                  <Stack minHeight={280} alignItems="center" justifyContent="center">
+                    <CircularProgress />
+                  </Stack>
+                }
+              >
+                <PageComponent />
+              </Suspense>
+            ) : (
+              <PagePlaceholder
+                title={title}
+                description="Nội dung minh họa cho khung giao diện G5PSC-18."
+              />
+            )
           }
         />
       ))}
