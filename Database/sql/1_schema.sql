@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS study_plans (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
-    target_score NUMERIC(5, 2),
+    target_score NUMERIC(7, 2),
     total_days INT NOT NULL,
     current_day INT DEFAULT 1,
     status VARCHAR(20) DEFAULT 'ACTIVE',
