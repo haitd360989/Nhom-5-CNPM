@@ -8,6 +8,7 @@ import { HOMES } from "./features/auth/config/roles.js";
 import { useAuth } from "./features/auth/context/AuthContext.jsx";
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import { roleFeatures } from "./features/index.js";
+import DiagnosticTestPage from "./features/diagnostic/pages/DiagnosticTestPage.jsx";
 
 function HomeRedirect() {
   const { user } = useAuth();
@@ -28,24 +29,34 @@ function AccessDenied() {
     </Paper>
   );
 }
+const ROUTE_OVERRIDES = {
+  "/student/assessment": <DiagnosticTestPage />,
+};
+
 function featureRoutes(feature) {
   return (
     <Route
       key={feature.role}
       element={<RoleRoute allowedRoles={[feature.role]} />}
     >
-      {feature.routes.map(([segment, title]) => (
-        <Route
-          key={segment || "home"}
-          path={segment ? `${feature.prefix}/${segment}` : feature.prefix}
-          element={
-            <PagePlaceholder
-              title={title}
-              description="Nội dung minh họa cho khung giao diện G5PSC-18."
-            />
-          }
-        />
-      ))}
+      {feature.routes.map(([segment, title]) => {
+        const path = segment ? `${feature.prefix}/${segment}` : feature.prefix;
+        const override = ROUTE_OVERRIDES[`/${path}`];
+        return (
+          <Route
+            key={segment || "home"}
+            path={path}
+            element={
+              override || (
+                <PagePlaceholder
+                  title={title}
+                  description="Nội dung minh họa cho khung giao diện G5PSC-18."
+                />
+              )
+            }
+          />
+        );
+      })}
     </Route>
   );
 }
