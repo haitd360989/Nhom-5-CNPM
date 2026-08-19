@@ -51,9 +51,16 @@ export function AuthProvider({ children }) {
     setTokens(null);
     setUser(null);
   };
-
-  const value = useMemo(
-    () => ({ user, login, register, logout, loading, isAuthenticated: !!user }),
+    const value = useMemo(
+    () => ({
+      user,
+      login,
+      register,
+      logout,
+      loading,
+      isAuthenticated: !!user,
+      accessToken: tokens?.access_token || null,
+    }),
     [user, loading, tokens],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
