@@ -26,3 +26,11 @@ export const diagnosticApi = {
       body: JSON.stringify(payload),
     }),
 };
+
+export const studyPlanApi = {
+  create: (token, payload) =>
+    request("/study-plan/init", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+};

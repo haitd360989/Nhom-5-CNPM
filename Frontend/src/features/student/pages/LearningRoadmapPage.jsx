@@ -4,6 +4,7 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -12,6 +13,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useAuth } from "../../auth/context/AuthContext.jsx";
+import { studyPlanApi } from "../api.js";
 import GoalSetupModal from "../components/GoalSetupModal.jsx";
 
 const STORAGE_KEY = "swr-act-learning-goal";
@@ -32,13 +35,46 @@ const formatDate = (value) =>
   }).format(new Date(`${value}T00:00:00`));
 
 export default function LearningRoadmapPage() {
+  const { accessToken } = useAuth();
   const [goal, setGoal] = useState(readGoal);
   const [open, setOpen] = useState(!goal);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const saveGoal = (values) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
-    setGoal(values);
-    setOpen(false);
+  const saveGoal = async (values) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const examDate = new Date(`${values.examDate}T00:00:00`);
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      const totalDays = Math.max(
+        1,
+        Math.ceil((examDate - currentDate) / (1000 * 60 * 60 * 24)),
+      );
+
+      const createdPlan = await studyPlanApi.create(accessToken, {
+        target_goal: "Luyện thi ĐGNL",
+        target_score: Number(values.targetScore),
+        total_days: totalDays,
+      });
+
+      const savedGoal = {
+        ...values,
+        planId: createdPlan.plan_id,
+        status: createdPlan.status,
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedGoal));
+      setGoal(savedGoal);
+      setOpen(false);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -67,6 +103,12 @@ export default function LearningRoadmapPage() {
           </Button>
         </Stack>
       </Box>
+
+      {error && (
+        <Alert severity="error" onClose={() => setError("")}>
+          {error}
+        </Alert>
+      )}
 
       {goal ? (
         <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 3 } }}>
@@ -137,6 +179,7 @@ export default function LearningRoadmapPage() {
         initialGoal={goal}
         onClose={() => setOpen(false)}
         onSave={saveGoal}
+        saving={saving}
       />
     </Stack>
   );

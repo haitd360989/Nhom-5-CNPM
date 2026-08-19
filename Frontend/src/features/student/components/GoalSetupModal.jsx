@@ -42,7 +42,13 @@ function validate(values) {
   return errors;
 }
 
-export default function GoalSetupModal({ open, initialGoal, onClose, onSave }) {
+export default function GoalSetupModal({
+  open,
+  initialGoal,
+  onClose,
+  onSave,
+  saving = false,
+}) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
 
@@ -158,11 +164,11 @@ export default function GoalSetupModal({ open, initialGoal, onClose, onSave }) {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, pt: 1.5 }}>
-          <Button onClick={onClose} color="inherit">
+          <Button onClick={onClose} color="inherit" disabled={saving}>
             Hủy
           </Button>
-          <Button type="submit" variant="contained">
-            Lưu mục tiêu
+          <Button type="submit" variant="contained" disabled={saving}>
+            {saving ? "Đang tạo lộ trình…" : "Lưu mục tiêu"}
           </Button>
         </DialogActions>
       </Box>
