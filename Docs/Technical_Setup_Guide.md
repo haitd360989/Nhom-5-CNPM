@@ -156,3 +156,82 @@ Server khởi chạy thành công tại địa chỉ: [http://127.0.0.1:8000](ht
 
 ![Ảnh minh chứng API nhập dữ liệu tạo lộ trình học](Images/api_init_study_plan_success_1.png)
 ![Ảnh minh chứng API tạo lộ trình học thành công](Images/api_init_study_plan_success_2.png)
+
+## 6. KHỞI CHẠY VÀ TRẢI NGHIỆM GIAO DIỆN NGƯỜI DÙNG (FRONTEND)
+
+Giao diện người dùng được xây dựng trên nền tảng **React / Vite**, tối ưu hóa trải nghiệm làm bài thi trực quan, hiển thị công thức toán học thời gian thực và quản lý lộ trình học tập cá nhân hóa.
+
+### 6.1. Cài đặt phụ thuộc và khởi chạy Frontend
+
+Mở một cửa sổ Terminal mới tại thư mục gốc của dự án (`Nhom-5-CNPM`) và thực hiện tuần tự:
+* **Bước 1: Kích hoạt môi trường ảo của dự án**
+* *Trên Windows (PowerShell):*
+    ```powershell
+    .\.venv\Scripts\Activate.ps1
+    ```
+* *Trên macOS / Linux:*
+    ```bash
+    source .venv/bin/activate
+    ```
+
+* **Bước 2: Di chuyển vào thư mục Frontend và cài đặt thư viện**
+  ```bash
+  cd Frontend
+  npm install
+  ```
+* **Bước 3: Khởi chạy Frontend**
+  ```bash
+  npm run dev
+  ```
+  Giao diện sẽ khởi chạy thành công tại địa chỉ (http://localhost:5173/) như trong ảnh :
+  ![Ảnh minh chứng khởi chạy Frontend thành công](Images/LaunchFrontend.png)
+
+  > **LƯU Ý QUAN TRỌNG TRƯỚC KHI KHỞI CHẠY:**
+  > * Máy chủ **Backend API (`FastAPI` chạy tại cổng `8000`) phải được khởi chạy trước** (theo hướng dẫn ở Mục 5.1) và luôn duy trì hoạt động trong một cửa sổ Terminal riêng.
+  > * Toàn bộ các thao tác trên Frontend (Đăng ký, Đăng nhập, Tải đề thi, Nộp bài chấm điểm và Khởi tạo lộ trình) đều gọi API trực tiếp sang Backend để xác thực JWT Token và đồng bộ CSDL Supabase. Nếu chưa bật Backend, hệ thống sẽ gặp lỗi mất kết nối (`Network Error`).
+
+### 6.2. Minh chứng luồng trải nghiệm người dùng trên hệ thống
+
+#### Bước A: Đăng ký và Đăng nhập tài khoản (Authentication)
+* **Chức năng:** Cho phép học viên khởi tạo tài khoản mới hoặc đăng nhập vào hệ thống, kết nối trực tiếp với Backend API để xác thực và đồng bộ dữ liệu người dùng về CSDL Supabase.
+* **Giao diện & Nghiệp vụ:**
+  * **Tạo tài khoản:** Nhập *Họ và tên*, *Email*, *Mật khẩu* và chọn *Đăng ký và đăng nhập* để tự động gán vai trò `STUDENT`.
+  * **Đăng nhập:** Nhập *Email*, *Mật khẩu* để lấy `access_token` (JWT Token) lưu trữ tại trình duyệt và điều hướng vào không gian học tập.
+
+![Giao diện Đăng ký tài khoản](Images/frontend_register.png)
+![Giao diện Đăng nhập hệ thống](Images/frontend_login.png)
+
+---
+
+#### Bước B: Không gian phòng thi đánh giá năng lực (`/student/assessment`)
+* **Chức năng:** Học viên làm bài kiểm tra chẩn đoán trắc nghiệm gồm 15 câu hỏi đa lĩnh vực.
+* **Điểm nổi bật về kỹ thuật:**
+  * **Đồng hồ đếm ngược:** Đếm ngược thời gian làm bài thời gian thực.
+  * **Thanh tiến trình (Progress Bar):** Tự động cập nhật tỉ lệ hoàn thành câu hỏi theo thời gian thực (ví dụ: `2/15 câu`).
+  * **Bảng điều hướng câu hỏi (Question Palette):** Trực quan hóa câu đang làm (xanh dương), câu đã chọn đáp án (xanh lá) và câu chưa trả lời.
+
+![Giao diện phòng thi chẩn đoán năng lực](Images/frontend_assessment_room.png)
+
+---
+
+#### Bước C: Màn hình Kết quả đánh giá năng lực
+* **Chức năng:** Tự động chấm điểm và phản hồi kết quả bài thi chẩn đoán ngay sau khi học viên nộp bài.
+* **Thông tin hiển thị:**
+  * **Tổng quan điểm số:** Điểm thô đạt được (ví dụ: `2/15 câu đúng`), tỷ lệ phần trăm chính xác (`13.33%`).
+  * **Phân tích chi tiết bài làm:** Hiển thị danh sách câu hỏi, đáp án học viên đã chọn và gắn nhãn Đúng/Sai trực quan.
+  * **Điều hướng chức năng:** Nút bấm trực tiếp chuyển sang *Xem lộ trình học* hoặc *Làm lại bài đánh giá*.
+
+![Giao diện Kết quả đánh giá năng lực](Images/frontend_assessment_result.png)
+![Giao diện Kết quả đánh giá năng lực 2](Images/frontend_assessment_result_2.png)
+
+---
+
+#### Bước D: Không gian Lộ trình học tập (`/student/roadmap`)
+* **Chức năng:** Hiển thị thông số lộ trình hiện tại và cung cấp modal thiết lập/chỉnh sửa mục tiêu để hệ thống tính toán xây dựng lộ trình học phù hợp.
+* **Thông tin hiển thị & Quy chuẩn dữ liệu:**
+  * **Thẻ tóm tắt lộ trình:** Hiển thị *Điểm mục tiêu* (ví dụ : 1.000 điểm), *Ngày thi* (ví dụ : 12/02/2028), *Thời gian học* (ví dụ : 10 giờ/ngày).
+  * **Modal thiết lập mục tiêu lộ trình:** Nhận dải điểm từ `1` đến `1200` điểm (đồng bộ kiểu dữ liệu `NUMERIC(7,2)` trên Supabase), ngày thi chính thức và thời lượng học từ `0.5` đến `12` giờ/ngày.
+
+![Giao diện Lộ trình học tập](Images/frontend_roadmap_view.png)
+![Modal thiết lập mục tiêu lộ trình](Images/frontend_goal_modal.png)
+![Ảnh minh chứng dữ liệu thiết lập lộ trình học tập đã thay đổi theo yêu cầu chỉnh sửa](Images/frontend_goal_modal_modified.png)
