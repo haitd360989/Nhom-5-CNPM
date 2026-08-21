@@ -1,0 +1,88 @@
+import SchoolIcon from "@mui/icons-material/SchoolRounded";
+import {
+  Box,
+  Divider,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../../features/auth/context/AuthContext.jsx";
+import { menuConfig } from "../../features/index.js";
+export const WIDTH = 272;
+export default function Sidebar({ open, onClose }) {
+  const { user } = useAuth();
+  const body = (
+    <Box sx={{ p: 2 }}>
+      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: 1 }}>
+        <Box
+          sx={{
+            p: 1,
+            bgcolor: "primary.main",
+            color: "white",
+            borderRadius: 2,
+          }}
+        >
+          <SchoolIcon />
+        </Box>
+        <Box>
+          <Typography fontWeight={800}>SWR-ACT</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Adaptive Learning
+          </Typography>
+        </Box>
+      </Stack>
+      <Divider sx={{ my: 2 }} />
+      <List>
+        {(menuConfig[user.role] || []).map(([label, path, Icon]) => (
+          <ListItemButton
+            key={path}
+            component={NavLink}
+            to={path}
+            end={path.split("/").length === 2}
+            onClick={onClose}
+            sx={{
+              mb: 0.5,
+              borderRadius: 2,
+              "&.active": {
+                bgcolor: "primary.main",
+                color: "white",
+                "& .MuiListItemIcon-root": { color: "white" },
+              },
+            }}
+          >
+            <ListItemIcon>
+              <Icon />
+            </ListItemIcon>
+            <ListItemText primary={label} />
+          </ListItemButton>
+        ))}
+      </List>
+    </Box>
+  );
+  return (
+    <Box component="nav" sx={{ width: { md: WIDTH }, flexShrink: { md: 0 } }}>
+      <Drawer
+        variant="temporary"
+        open={open}
+        onClose={onClose}
+        sx={{ display: { md: "none" }, "& .MuiDrawer-paper": { width: WIDTH } }}
+      >
+        {body}
+      </Drawer>
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: "none", md: "block" },
+          "& .MuiDrawer-paper": { width: WIDTH },
+        }}
+      >
+        {body}
+      </Drawer>
+    </Box>
+  );
+}
