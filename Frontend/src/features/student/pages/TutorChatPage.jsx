@@ -60,7 +60,7 @@ export default function TutorChatPage() {
           id: `${Date.now()}-ai`,
           role: "ai",
           content:
-            "Đây là khung giao diện chat tĩnh, phần trả lời từ AI thật sẽ được ghép nối ở giai đoạn tiếp theo.",
+         "Giải phương trình $x^2 - 4x + 4 = 0$ ta có $\\Delta = 0$ suy ra $x = 2$",
         },
       ]);
       setWaiting(false);
