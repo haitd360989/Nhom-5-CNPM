@@ -7,8 +7,14 @@ import ProgressIcon from "@mui/icons-material/TrendingUpRounded";
 import { lazy } from "react";
 import { ROLES } from "../auth/config/roles.js";
 
-const DiagnosticAssessmentPage = lazy(() => import("./pages/DiagnosticAssessmentPage.jsx"));
-const LearningRoadmapPage = lazy(() => import("./pages/LearningRoadmapPage.jsx"));
+const DiagnosticAssessmentPage = lazy(
+  () => import("./pages/DiagnosticAssessmentPage.jsx"),
+);
+const LearningRoadmapPage = lazy(
+  () => import("./pages/LearningRoadmapPage.jsx"),
+);
+const PracticeConfigPage = lazy(() => import("./pages/PracticeConfigPage.jsx"));
+const PracticeExamPage = lazy(() => import("./pages/PracticeExamPage.jsx"));
 const TutorChatPage = lazy(() => import("./pages/TutorChatPage.jsx"));
 
 export const studentFeature = {
@@ -18,7 +24,8 @@ export const studentFeature = {
     ["", "Tổng quan học tập"],
     ["assessment", "Đánh giá năng lực", DiagnosticAssessmentPage],
     ["roadmap", "Lộ trình học", LearningRoadmapPage],
-    ["practice", "Luyện tập"],
+    ["practice", "Luyện tập", PracticeConfigPage],
+    ["practice/exam", "Bài luyện tập", PracticeExamPage],
     ["tutor", "AI Tutor", TutorChatPage],
     ["progress", "Tiến độ"],
   ],
