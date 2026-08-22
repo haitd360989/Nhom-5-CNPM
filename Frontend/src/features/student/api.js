@@ -7,14 +7,16 @@ async function request(path, token, options = {}) {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
+
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     throw new Error(body.detail || "Không thể kết nối máy chủ");
   }
+
   return response.json();
 }
 
@@ -33,4 +35,26 @@ export const studyPlanApi = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+};
+
+export const practiceApi = {
+  getQuestions: (token, filters = {}) => {
+    const params = new URLSearchParams();
+
+    if (filters.subject) params.set("subject", filters.subject);
+    if (filters.topic) params.set("topic", filters.topic);
+    if (filters.difficulty) params.set("difficulty", filters.difficulty);
+    if (filters.limit != null) params.set("limit", String(filters.limit));
+
+    const query = params.toString();
+    return request(`/practice/questions${query ? `?${query}` : ""}`, token);
+  },
+
+  submit: (token, payload) =>
+    request("/practice/submit", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  history: (token) => request("/practice/history", token),
 };

@@ -53,6 +53,7 @@ class Test(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    type: Mapped[str] = mapped_column(String(20), nullable=False, default="DIAGNOSTIC")
     score: Mapped[float] = mapped_column(Numeric(5, 2), default=0.00)
     status: Mapped[str] = mapped_column(String(20), default="IN_PROGRESS")
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)

@@ -5,6 +5,7 @@ from app.api import router as auth_router
 from app.db import Base, engine
 from app.rag.router import router as rag_router
 from app.diagnostic_routes.diagnostic import router as diagnostic_router
+from app.practice_routes.practice import router as practice_router
 
 app = FastAPI(
     title="AI Personalized Learning Platform - Backend",
@@ -27,6 +28,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(rag_router)
 app.include_router(diagnostic_router)
+app.include_router(practice_router)
 
 # When Subtask 2 is extracted into the same root, its router is picked up
 # automatically. Subtask 1 itself remains runnable without Subtask 2.
