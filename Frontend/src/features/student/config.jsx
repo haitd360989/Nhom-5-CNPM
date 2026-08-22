@@ -9,6 +9,7 @@ import { ROLES } from "../auth/config/roles.js";
 
 const DiagnosticAssessmentPage = lazy(() => import("./pages/DiagnosticAssessmentPage.jsx"));
 const LearningRoadmapPage = lazy(() => import("./pages/LearningRoadmapPage.jsx"));
+const TutorChatPage = lazy(() => import("./pages/TutorChatPage.jsx"));
 
 export const studentFeature = {
   prefix: "student",
@@ -18,7 +19,7 @@ export const studentFeature = {
     ["assessment", "Đánh giá năng lực", DiagnosticAssessmentPage],
     ["roadmap", "Lộ trình học", LearningRoadmapPage],
     ["practice", "Luyện tập"],
-    ["tutor", "AI Tutor"],
+    ["tutor", "AI Tutor", TutorChatPage],
     ["progress", "Tiến độ"],
   ],
   menu: [
