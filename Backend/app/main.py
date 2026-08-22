@@ -38,3 +38,4 @@ app.include_router(practice_router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
