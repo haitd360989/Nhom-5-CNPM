@@ -34,3 +34,29 @@ export const studyPlanApi = {
       body: JSON.stringify(payload),
     }),
 };
+
+export const practiceApi = {
+  getQuestions: (token, filters = {}) => {
+    const params = new URLSearchParams();
+
+    if (filters.subject) params.set("subject", filters.subject);
+    if (filters.topic) params.set("topic", filters.topic);
+    if (filters.difficulty) params.set("difficulty", filters.difficulty);
+    if (filters.limit != null) params.set("limit", String(filters.limit));
+
+    const query = params.toString();
+
+    return request(
+      `/practice/questions${query ? `?${query}` : ""}`,
+      token,
+    );
+  },
+
+  submit: (token, payload) =>
+    request("/practice/submit", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  history: (token) => request("/practice/history", token),
+};
