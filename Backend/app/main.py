@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.routes import router as tutor_router
 from app.api import router as auth_router
 from app.db import Base, engine
 from app.rag.router import router as rag_router
@@ -27,6 +28,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(rag_router)
 app.include_router(diagnostic_router)
+app.include_router(tutor_router)
 
 # When Subtask 2 is extracted into the same root, its router is picked up
 # automatically. Subtask 1 itself remains runnable without Subtask 2.

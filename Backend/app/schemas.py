@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.models import UserRole, UserStatus
@@ -31,3 +32,10 @@ class UserResponse(BaseModel):
     full_name: str
     role: UserRole
     status: UserStatus
+
+class TutorAskRequest(BaseModel):
+    question_id: Optional[int] = Field(None, description="ID của câu hỏi học sinh đang thắc mắc")
+    user_message: str = Field(..., description="Câu hỏi hoặc thắc mắc của học sinh")
+
+class TutorAskResponse(BaseModel):
+    answer: str = Field(..., description="Lời giải thích và hướng dẫn từ AI Tutor")

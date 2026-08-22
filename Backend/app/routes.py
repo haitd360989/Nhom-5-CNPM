@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-
+from app.schemas import TutorAskRequest, TutorAskResponse
+from app.rag.tutor_service import generate_tutor_response
 from app.models import User, UserRole
 from app.rbac import require_roles
 
@@ -24,3 +25,17 @@ def student_resource(user: User = Depends(require_roles(UserRole.ADMIN, UserRole
 @router.get("/parent")
 def parent_resource(user: User = Depends(require_roles(UserRole.ADMIN, UserRole.PARENT))):
     return {"message": "Parent resource", "user_id": user.id, "role": user.role}
+
+@router.post("/tutor/ask", response_model=TutorAskResponse)
+async def ask_ai_tutor(
+    body: TutorAskRequest,
+    current_user: User = Depends(require_roles(UserRole.STUDENT, UserRole.ADMIN))
+):
+    question_context = f"Câu hỏi ID: {body.question_id}"
+    
+    ai_answer = await generate_tutor_response(
+        question_context=question_context, 
+        user_message=body.user_message
+    )
+    
+    return TutorAskResponse(answer=ai_answer)
