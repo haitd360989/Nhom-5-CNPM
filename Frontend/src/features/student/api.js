@@ -46,10 +46,7 @@ export const practiceApi = {
 
     const query = params.toString();
 
-    return request(
-      `/practice/questions${query ? `?${query}` : ""}`,
-      token,
-    );
+    return request(`/practice/questions${query ? `?${query}` : ""}`, token);
   },
 
   submit: (token, payload) =>
@@ -59,4 +56,12 @@ export const practiceApi = {
     }),
 
   history: (token) => request("/practice/history", token),
+};
+
+export const tutorApi = {
+  ask: (token, payload) =>
+    request("/v1/rbac/tutor/ask", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 };

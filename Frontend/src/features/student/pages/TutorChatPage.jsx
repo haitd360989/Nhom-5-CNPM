@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import SmartToyRoundedIcon from "@mui/icons-material/SmartToyRounded";
 import {
+  Alert,
   Avatar,
   Box,
   Chip,
@@ -14,6 +16,8 @@ import {
   Typography,
 } from "@mui/material";
 import MathMarkdown from "../../../components/common/MathMarkdown.jsx";
+import { useAuth } from "../../auth/context/AuthContext.jsx";
+import { tutorApi } from "../api.js";
 
 // Câu hỏi gợi ý nhanh, bấm vào sẽ tự điền và gửi luôn
 const QUICK_QUESTIONS = [
@@ -31,19 +35,31 @@ const WELCOME_MESSAGE = {
 };
 
 export default function TutorChatPage() {
+  const { accessToken } = useAuth();
+  const location = useLocation();
+  const questionId = location.state?.questionId;
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(location.state?.initialMessage || "");
   const [waiting, setWaiting] = useState(false);
+  const [error, setError] = useState("");
   const bottomRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, waiting]);
 
-  const sendMessage = (text) => {
+  const sendMessage = async (text) => {
     const content = text.trim();
     if (!content || waiting) return;
 
+    if (!questionId) {
+      setError(
+        "Hãy mở AI Tutor từ nút 'Hỏi AI Tutor' tại một câu làm sai để hệ thống có ngữ cảnh câu hỏi.",
+      );
+      return;
+    }
+
+    setError("");
     setMessages((prev) => [
       ...prev,
       { id: `${Date.now()}-user`, role: "user", content },
@@ -51,20 +67,24 @@ export default function TutorChatPage() {
     setInput("");
     setWaiting(true);
 
-    // TODO (G5PSC-76): thay đoạn giả lập này bằng gọi API thật
-    // POST /api/v1/tutor/ask do Trí xây dựng khi ghép nối ở Giai đoạn 2
-    window.setTimeout(() => {
+    try {
+      const response = await tutorApi.ask(accessToken, {
+        question_id: questionId,
+        user_message: content,
+      });
       setMessages((prev) => [
         ...prev,
         {
           id: `${Date.now()}-ai`,
           role: "ai",
-          content:
-         "Đây là khung chat tĩnh.",
+          content: response.answer,
         },
       ]);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
       setWaiting(false);
-    }, 700);
+    }
   };
 
   const handleSubmit = (event) => {
@@ -94,6 +114,15 @@ export default function TutorChatPage() {
           overflow: "hidden",
         }}
       >
+        {error && (
+          <Alert
+            severity="error"
+            onClose={() => setError("")}
+            sx={{ m: 2, mb: 0 }}
+          >
+            {error}
+          </Alert>
+        )}
         <Box sx={{ flexGrow: 1, overflowY: "auto", p: { xs: 2, sm: 3 } }}>
           <Stack spacing={2}>
             {messages.map((message) => {
@@ -107,7 +136,9 @@ export default function TutorChatPage() {
                   alignItems="flex-start"
                 >
                   {!isUser && (
-                    <Avatar sx={{ bgcolor: "primary.main", width: 32, height: 32 }}>
+                    <Avatar
+                      sx={{ bgcolor: "primary.main", width: 32, height: 32 }}
+                    >
                       <SmartToyRoundedIcon fontSize="small" />
                     </Avatar>
                   )}
@@ -127,7 +158,9 @@ export default function TutorChatPage() {
                     </MathMarkdown>
                   </Paper>
                   {isUser && (
-                    <Avatar sx={{ bgcolor: "secondary.main", width: 32, height: 32 }}>
+                    <Avatar
+                      sx={{ bgcolor: "secondary.main", width: 32, height: 32 }}
+                    >
                       <PersonRoundedIcon fontSize="small" />
                     </Avatar>
                   )}
@@ -142,7 +175,11 @@ export default function TutorChatPage() {
                 </Avatar>
                 <Paper
                   variant="outlined"
-                  sx={{ p: 1.5, borderRadius: 2.5, bgcolor: "background.default" }}
+                  sx={{
+                    p: 1.5,
+                    borderRadius: 2.5,
+                    bgcolor: "background.default",
+                  }}
                 >
                   <Stack direction="row" spacing={1} alignItems="center">
                     <CircularProgress size={14} />
@@ -157,11 +194,17 @@ export default function TutorChatPage() {
           </Stack>
         </Box>
 
-        <Box sx={{ borderTop: 1, borderColor: "divider", p: { xs: 1.5, sm: 2 } }}>
+        <Box
+          sx={{ borderTop: 1, borderColor: "divider", p: { xs: 1.5, sm: 2 } }}
+        >
           <Stack
             direction="row"
             spacing={1}
-            sx={{ overflowX: "auto", pb: 1.25, "&::-webkit-scrollbar": { height: 4 } }}
+            sx={{
+              overflowX: "auto",
+              pb: 1.25,
+              "&::-webkit-scrollbar": { height: 4 },
+            }}
           >
             {QUICK_QUESTIONS.map((question) => (
               <Chip
