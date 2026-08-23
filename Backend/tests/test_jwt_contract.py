@@ -45,8 +45,11 @@ def test_legacy_bcrypt_verification_path(monkeypatch):
     import app.core.security as security
 
     fake_bcrypt = types.SimpleNamespace(
-        checkpw=lambda password, hashed: password == b"Password123" and hashed.startswith(b"$2a$")
+        checkpw=lambda password, hashed: (
+            (password == b"Password123" or password == "Password123")
+            and (hashed.startswith(b"$2a$") or hashed.startswith("$2a$"))
+        )
     )
-    monkeypatch.setitem(sys.modules, "bcrypt", fake_bcrypt)
+    monkeypatch.setattr(security, "bcrypt", fake_bcrypt)
     assert security.verify_password("Password123", "$2a$12$legacy-hash") is True
     assert security.verify_password("WrongPassword", "$2a$12$legacy-hash") is False
