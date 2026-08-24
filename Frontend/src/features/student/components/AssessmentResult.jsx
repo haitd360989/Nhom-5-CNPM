@@ -24,7 +24,7 @@ export default function AssessmentResult({
   retryLabel = "Làm lại bài đánh giá",
   primaryLabel = "Xem lộ trình học",
   primaryPath = "/student/roadmap",
-  enableTutor = false,
+  enableTutor = true,
 }) {
   const navigate = useNavigate();
 
@@ -225,6 +225,7 @@ export default function AssessmentResult({
                   navigate("/student/tutor", {
                     state: {
                       questionId: item.question_id,
+                      questionContent: item.content,
                       initialMessage: `Hãy giải thích câu hỏi này và cách tìm đáp án đúng: ${item.content}`,
                     },
                   })

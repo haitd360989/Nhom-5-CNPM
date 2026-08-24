@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import SmartToyRoundedIcon from "@mui/icons-material/SmartToyRounded";
@@ -15,9 +16,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import MathMarkdown from "../../../components/common/MathMarkdown.jsx";
 import { useAuth } from "../../auth/context/AuthContext.jsx";
 import { tutorApi } from "../api.js";
+import MathMarkdown from "../../../components/common/MathMarkdown.jsx";
 
 // Câu hỏi gợi ý nhanh, bấm vào sẽ tự điền và gửi luôn
 const QUICK_QUESTIONS = [
@@ -35,14 +36,29 @@ const WELCOME_MESSAGE = {
 };
 
 export default function TutorChatPage() {
-  const { accessToken } = useAuth();
   const location = useLocation();
-  const questionId = location.state?.questionId;
+  const { accessToken } = useAuth();
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
   const [input, setInput] = useState(location.state?.initialMessage || "");
   const [waiting, setWaiting] = useState(false);
   const [error, setError] = useState("");
+  // Ngữ cảnh câu hỏi đang được hỏi (nếu đi từ trang kết quả sang qua nút "Hỏi AI câu này")
+  const [contextQuestion, setContextQuestion] = useState(null);
   const bottomRef = useRef(null);
+
+  // Nhận ngữ cảnh câu hỏi sai từ trang kết quả (nếu có) khi vừa vào trang
+  useEffect(() => {
+    const state = location.state;
+    if (state?.questionId) {
+      setContextQuestion({
+        id: state.questionId,
+        content: state.questionContent || "",
+      });
+      setInput("Thầy/cô giải thích lại giúp em câu này với ạ.");
+    }
+    // Chỉ chạy 1 lần lúc vào trang, không cần chạy lại khi location đổi liên tục
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -52,7 +68,7 @@ export default function TutorChatPage() {
     const content = text.trim();
     if (!content || waiting) return;
 
-    if (!questionId) {
+    if (!contextQuestion?.id) {
       setError(
         "Hãy mở AI Tutor từ nút 'Hỏi AI Tutor' tại một câu làm sai để hệ thống có ngữ cảnh câu hỏi.",
       );
@@ -68,17 +84,13 @@ export default function TutorChatPage() {
     setWaiting(true);
 
     try {
-      const response = await tutorApi.ask(accessToken, {
-        question_id: questionId,
+      const res = await tutorApi.ask(accessToken, {
+        question_id: contextQuestion.id,
         user_message: content,
       });
       setMessages((prev) => [
         ...prev,
-        {
-          id: `${Date.now()}-ai`,
-          role: "ai",
-          content: response.answer,
-        },
+        { id: `${Date.now()}-ai`, role: "ai", content: res.answer },
       ]);
     } catch (requestError) {
       setError(requestError.message);
@@ -104,6 +116,34 @@ export default function TutorChatPage() {
           Hỏi đáp trực tiếp cùng AI để làm rõ các kiến thức còn chưa nắm chắc.
         </Typography>
       </Box>
+
+      {contextQuestion && (
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 1.5,
+            borderRadius: 2.5,
+            bgcolor: "background.default",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1,
+          }}
+        >
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography variant="caption" color="text.secondary">
+              Đang hỏi về câu:
+            </Typography>
+            {contextQuestion.content && (
+              <MathMarkdown sx={{ fontSize: "0.875rem" }}>
+                {contextQuestion.content}
+              </MathMarkdown>
+            )}
+          </Box>
+          <IconButton size="small" onClick={() => setContextQuestion(null)}>
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+        </Paper>
+      )}
 
       <Paper
         variant="outlined"
