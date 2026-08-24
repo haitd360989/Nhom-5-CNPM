@@ -2,6 +2,7 @@ import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import RouteRoundedIcon from "@mui/icons-material/RouteRounded";
+import SmartToyRoundedIcon from "@mui/icons-material/SmartToyRounded";
 import {
   Alert,
   Box,
@@ -205,6 +206,23 @@ export default function AssessmentResult({ result, onRetry }) {
                   <MathMarkdown inline>{item.explanation}</MathMarkdown>
                 </Box>
               </Box>
+            )}
+            {!item.is_correct && (
+              <Button
+                size="small"
+                startIcon={<SmartToyRoundedIcon fontSize="small" />}
+                sx={{ mt: 1.5 }}
+                onClick={() =>
+                  navigate("/student/tutor", {
+                    state: {
+                      questionId: item.question_id,
+                      questionContent: item.content,
+                    },
+                  })
+                }
+              >
+                Hỏi AI câu này
+              </Button>
             )}
           </Paper>
         ))}
