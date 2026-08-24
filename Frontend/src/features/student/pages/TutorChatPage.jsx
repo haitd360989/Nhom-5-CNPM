@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import SmartToyRoundedIcon from "@mui/icons-material/SmartToyRounded";
@@ -13,6 +15,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useAuth } from "../../auth/context/AuthContext.jsx";
+import { tutorApi } from "../api.js";
 import MathMarkdown from "../../../components/common/MathMarkdown.jsx";
 
 // Câu hỏi gợi ý nhanh, bấm vào sẽ tự điền và gửi luôn
@@ -31,16 +35,35 @@ const WELCOME_MESSAGE = {
 };
 
 export default function TutorChatPage() {
+  const location = useLocation();
+  const { accessToken } = useAuth();
+
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
   const [input, setInput] = useState("");
   const [waiting, setWaiting] = useState(false);
+  // Ngữ cảnh câu hỏi đang được hỏi (nếu đi từ trang kết quả sang qua nút "Hỏi AI câu này")
+  const [contextQuestion, setContextQuestion] = useState(null);
   const bottomRef = useRef(null);
+
+  // Nhận ngữ cảnh câu hỏi sai từ trang kết quả (nếu có) khi vừa vào trang
+  useEffect(() => {
+    const state = location.state;
+    if (state?.questionId) {
+      setContextQuestion({
+        id: state.questionId,
+        content: state.questionContent || "",
+      });
+      setInput("Thầy/cô giải thích lại giúp em câu này với ạ.");
+    }
+    // Chỉ chạy 1 lần lúc vào trang, không cần chạy lại khi location đổi liên tục
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, waiting]);
 
-  const sendMessage = (text) => {
+  const sendMessage = async (text) => {
     const content = text.trim();
     if (!content || waiting) return;
 
@@ -51,20 +74,27 @@ export default function TutorChatPage() {
     setInput("");
     setWaiting(true);
 
-    // TODO (G5PSC-76): thay đoạn giả lập này bằng gọi API thật
-    // POST /api/v1/tutor/ask do Trí xây dựng khi ghép nối ở Giai đoạn 2
-    window.setTimeout(() => {
+    try {
+      const res = await tutorApi.ask(accessToken, {
+        question_id: contextQuestion?.id ?? null,
+        user_message: content,
+      });
+      setMessages((prev) => [
+        ...prev,
+        { id: `${Date.now()}-ai`, role: "ai", content: res.answer },
+      ]);
+    } catch (err) {
       setMessages((prev) => [
         ...prev,
         {
           id: `${Date.now()}-ai`,
           role: "ai",
-          content:
-         "Đây là khung chat tĩnh.",
+          content: `Xin lỗi, mình chưa trả lời được: ${err.message}`,
         },
       ]);
+    } finally {
       setWaiting(false);
-    }, 700);
+    }
   };
 
   const handleSubmit = (event) => {
@@ -84,6 +114,34 @@ export default function TutorChatPage() {
           Hỏi đáp trực tiếp cùng AI để làm rõ các kiến thức còn chưa nắm chắc.
         </Typography>
       </Box>
+
+      {contextQuestion && (
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 1.5,
+            borderRadius: 2.5,
+            bgcolor: "background.default",
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1,
+          }}
+        >
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography variant="caption" color="text.secondary">
+              Đang hỏi về câu:
+            </Typography>
+            {contextQuestion.content && (
+              <MathMarkdown sx={{ fontSize: "0.875rem" }}>
+                {contextQuestion.content}
+              </MathMarkdown>
+            )}
+          </Box>
+          <IconButton size="small" onClick={() => setContextQuestion(null)}>
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+        </Paper>
+      )}
 
       <Paper
         variant="outlined"
