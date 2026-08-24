@@ -46,10 +46,7 @@ export const practiceApi = {
 
     const query = params.toString();
 
-    return request(
-      `/practice/questions${query ? `?${query}` : ""}`,
-      token,
-    );
+    return request(`/practice/questions${query ? `?${query}` : ""}`, token);
   },
 
   submit: (token, payload) =>

@@ -17,7 +17,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import MathMarkdown from "../../../components/common/MathMarkdown.jsx";
 
-export default function AssessmentResult({ result, onRetry }) {
+export default function AssessmentResult({
+  result,
+  onRetry,
+  title = "Kết quả đánh giá năng lực",
+  retryLabel = "Làm lại bài đánh giá",
+  primaryLabel = "Xem lộ trình học",
+  primaryPath = "/student/roadmap",
+  enableTutor = true,
+}) {
   const navigate = useNavigate();
 
   return (
@@ -40,7 +48,7 @@ export default function AssessmentResult({ result, onRetry }) {
               size="small"
             />
             <Typography variant="h4" mt={1.5}>
-              Kết quả đánh giá năng lực
+              {title}
             </Typography>
             <Typography color="text.secondary" mt={0.75}>
               Xem lại chi tiết để biết phần kiến thức cần cải thiện.
@@ -70,16 +78,16 @@ export default function AssessmentResult({ result, onRetry }) {
           <Button
             variant="contained"
             startIcon={<RouteRoundedIcon />}
-            onClick={() => navigate("/student/roadmap")}
+            onClick={() => navigate(primaryPath)}
           >
-            Xem lộ trình học
+            {primaryLabel}
           </Button>
           <Button
             variant="outlined"
             startIcon={<ReplayRoundedIcon />}
             onClick={onRetry}
           >
-            Làm lại bài đánh giá
+            {retryLabel}
           </Button>
         </Stack>
       </Paper>
@@ -207,21 +215,23 @@ export default function AssessmentResult({ result, onRetry }) {
                 </Box>
               </Box>
             )}
-            {!item.is_correct && (
+            {enableTutor && !item.is_correct && (
               <Button
                 size="small"
-                startIcon={<SmartToyRoundedIcon fontSize="small" />}
-                sx={{ mt: 1.5 }}
+                variant="outlined"
+                startIcon={<SmartToyRoundedIcon />}
+                sx={{ mt: 2 }}
                 onClick={() =>
                   navigate("/student/tutor", {
                     state: {
                       questionId: item.question_id,
                       questionContent: item.content,
+                      initialMessage: `Hãy giải thích câu hỏi này và cách tìm đáp án đúng: ${item.content}`,
                     },
                   })
                 }
               >
-                Hỏi AI câu này
+                Hỏi AI Tutor về câu này
               </Button>
             )}
           </Paper>
