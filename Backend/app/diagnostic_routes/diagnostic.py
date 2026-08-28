@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -12,6 +13,8 @@ from app.diagnostic_schemas.diagnostic import (
     SubmitResponse,
     StudyPlanInitRequest,
     StudyPlanInitResponse,
+    PlanTaskCurrentResponse,
+    StudyPlanCurrentResponse,
 )
 
 router = APIRouter(prefix="/api", tags=["Diagnostic Assessment & Study Plan"])
@@ -139,4 +142,71 @@ def init_study_plan(
         title=new_plan.title,
         status=new_plan.status,
         total_tasks=len(sample_tasks)
+    )
+
+
+@router.get("/study-plan/current", response_model=StudyPlanCurrentResponse)
+def get_current_study_plan(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.STUDENT)),
+):
+    """Trả về lộ trình ACTIVE mới nhất của học sinh hiện tại kèm các PlanTask."""
+    current_plan = (
+        db.query(StudyPlan)
+        .filter(
+            StudyPlan.user_id == current_user.id,
+            StudyPlan.status == "ACTIVE",
+        )
+        .order_by(
+            StudyPlan.updated_at.desc(),
+            StudyPlan.id.desc(),
+        )
+        .first()
+    )
+
+    if current_plan is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy lộ trình ACTIVE hiện tại",
+        )
+
+    tasks = (
+        db.query(PlanTask)
+        .filter(PlanTask.plan_id == current_plan.id)
+        .order_by(
+            PlanTask.day_no.asc(),
+            PlanTask.id.asc(),
+        )
+        .all()
+    )
+
+    return StudyPlanCurrentResponse(
+        plan_id=current_plan.id,
+        user_id=current_plan.user_id,
+        title=current_plan.title,
+        target_score=(
+            float(current_plan.target_score)
+            if current_plan.target_score is not None
+            else None
+        ),
+        total_days=current_plan.total_days,
+        current_day=current_plan.current_day,
+        status=current_plan.status,
+        tasks=[
+            PlanTaskCurrentResponse(
+                id=task.id,
+                plan_id=task.plan_id,
+                day_no=task.day_no,
+                title=task.title,
+                type=task.type,
+                ref_id=task.ref_id,
+                status=task.status,
+                created_at=(
+                    task.created_at.isoformat()
+                    if task.created_at is not None
+                    else None
+                ),
+            )
+            for task in tasks
+        ],
     )
