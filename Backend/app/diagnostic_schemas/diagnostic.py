@@ -56,3 +56,25 @@ class StudyPlanInitResponse(BaseModel):
     title: str
     status: str
     total_tasks: int
+
+
+class PlanTaskCurrentResponse(BaseModel):
+    id: int
+    plan_id: int
+    day_no: int
+    title: str
+    type: str
+    ref_id: Optional[int] = None
+    status: str
+    created_at: Optional[str] = None
+
+
+class StudyPlanCurrentResponse(BaseModel):
+    plan_id: int
+    user_id: int
+    title: str
+    target_score: Optional[float] = None
+    total_days: int
+    current_day: int
+    status: str
+    tasks: List[PlanTaskCurrentResponse]
