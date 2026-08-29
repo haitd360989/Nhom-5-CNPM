@@ -8,6 +8,7 @@ from app.rag.router import router as rag_router
 from app.diagnostic_routes.diagnostic import router as diagnostic_router
 from app.practice_routes.practice import router as practice_router
 from app.analytics_routes.analytics import router as analytics_router
+from app.teacher_routes.teacher import router as teacher_router
 
 app = FastAPI(
     title="AI Personalized Learning Platform - Backend",
@@ -33,6 +34,7 @@ app.include_router(diagnostic_router)
 app.include_router(tutor_router)
 app.include_router(practice_router)
 app.include_router(analytics_router)
+app.include_router(teacher_router)
 
 @app.get("/health")
 def health():
