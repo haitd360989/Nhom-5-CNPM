@@ -15,7 +15,10 @@ async function request(path, token, options = {}) {
     const body = await response.json().catch(() => ({}));
     throw new Error(body.detail || "Không thể kết nối máy chủ");
   }
-  return response.json();
+  // Xóa (DELETE) thường trả về rỗng (204), không có JSON để đọc
+  if (response.status === 204) return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 export const teacherQuestionApi = {
