@@ -8,6 +8,9 @@ import { ROLES } from "../auth/config/roles.js";
 const TeacherQuestionsPage = lazy(
   () => import("./pages/TeacherQuestionsPage.jsx"),
 );
+const TeacherAnalyticsPage = lazy(
+  () => import("./pages/TeacherAnalyticsPage.jsx"),
+);
 
 export const teacherFeature = {
   prefix: "teacher",
@@ -16,7 +19,7 @@ export const teacherFeature = {
     ["", "Tổng quan giáo viên"],
     ["questions", "Ngân hàng câu hỏi", TeacherQuestionsPage],
     ["knowledge", "Kho tri thức"],
-    ["analytics", "Phân tích học sinh"],
+    ["analytics", "Phân tích học sinh", TeacherAnalyticsPage],
   ],
   menu: [
     ["Tổng quan", "/teacher", DashboardIcon],
