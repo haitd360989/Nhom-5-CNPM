@@ -50,6 +50,7 @@ class Question(Base):
 
 class Test(Base):
     __tablename__ = "tests"
+    __test__ = False  # Ngăn Pytest hiểu nhầm model Test là test class
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)

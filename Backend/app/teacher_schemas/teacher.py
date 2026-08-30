@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Any, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class QuestionBase(BaseModel):
@@ -11,8 +11,10 @@ class QuestionBase(BaseModel):
     difficulty: str = Field(..., description="Độ khó: EASY, MEDIUM, HARD")
     explanation: Optional[str] = Field(None, description="Lời giải chi tiết")
 
+
 class QuestionCreate(QuestionBase):
     pass
+
 
 class QuestionUpdate(BaseModel):
     content: Optional[str] = None
@@ -23,11 +25,10 @@ class QuestionUpdate(BaseModel):
     difficulty: Optional[str] = None
     explanation: Optional[str] = None
 
-class QuestionResponse(QuestionBase):
-    id: int
 
-    class Config:
-        from_attributes = True
+class QuestionResponse(QuestionBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
 
 
 class AnalyticsOverviewResponse(BaseModel):
