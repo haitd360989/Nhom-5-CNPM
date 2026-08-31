@@ -13,7 +13,9 @@ async function request(path, token, options = {}) {
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.detail || "Không thể kết nối máy chủ");
+    const error = new Error(body.detail || "Không thể kết nối máy chủ");
+    error.status = response.status;
+    throw error;
   }
   return response.json();
 }
@@ -28,6 +30,7 @@ export const diagnosticApi = {
 };
 
 export const studyPlanApi = {
+  getCurrent: (token) => request("/study-plan/current", token),
   create: (token, payload) =>
     request("/study-plan/init", token, {
       method: "POST",
