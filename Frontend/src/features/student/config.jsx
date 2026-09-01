@@ -16,18 +16,24 @@ const LearningRoadmapPage = lazy(
 const PracticeConfigPage = lazy(() => import("./pages/PracticeConfigPage.jsx"));
 const PracticeExamPage = lazy(() => import("./pages/PracticeExamPage.jsx"));
 const TutorChatPage = lazy(() => import("./pages/TutorChatPage.jsx"));
+const StudentOverviewPage = lazy(
+  () => import("./pages/StudentOverviewPage.jsx"),
+);
+const StudentProgressPage = lazy(
+  () => import("./pages/StudentProgressPage.jsx"),
+);
 
 export const studentFeature = {
   prefix: "student",
   role: ROLES.STUDENT,
   routes: [
-    ["", "Tổng quan học tập"],
+    ["", "Tổng quan học tập", StudentOverviewPage],
     ["assessment", "Đánh giá năng lực", DiagnosticAssessmentPage],
     ["roadmap", "Lộ trình học", LearningRoadmapPage],
     ["practice", "Luyện tập", PracticeConfigPage],
     ["practice/exam", "Bài luyện tập", PracticeExamPage],
     ["tutor", "AI Tutor", TutorChatPage],
-    ["progress", "Tiến độ"],
+    ["progress", "Tiến độ", StudentProgressPage],
   ],
   menu: [
     ["Tổng quan", "/student", DashboardIcon],

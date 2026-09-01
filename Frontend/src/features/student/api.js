@@ -38,6 +38,10 @@ export const studyPlanApi = {
     }),
 };
 
+export const analyticsApi = {
+  getProgress: (token) => request("/analytics/progress", token),
+};
+
 export const practiceApi = {
   getQuestions: (token, filters = {}) => {
     const params = new URLSearchParams();
