@@ -68,3 +68,7 @@ export const tutorApi = {
       body: JSON.stringify(payload),
     }),
 };
+
+export const analyticsApi = {
+  getProgress: (token) => request("/analytics/progress", token),
+};
