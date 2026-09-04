@@ -14,7 +14,6 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column
-
 from app.db import Base
 
 
@@ -60,7 +59,8 @@ class Question(Base):
 
 class Test(Base):
     __tablename__ = "tests"
-    __test__ = False  # Ngăn Pytest hiểu nhầm model Test là test class
+
+    __test__ = False
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
@@ -111,17 +111,27 @@ class PlanTask(Base):
 
 class StudentParent(Base):
     __tablename__ = "student_parents"
+
     __table_args__ = (
-        UniqueConstraint("parent_id", "student_id", name="uq_parent_student"),
+        UniqueConstraint(
+            "parent_id",
+            "student_id",
+            name="uq_parent_student",
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     parent_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     student_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=datetime.utcnow
+        DateTime(timezone=True),
+        default=datetime.utcnow,
     )
