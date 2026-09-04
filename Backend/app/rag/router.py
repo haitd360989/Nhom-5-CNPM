@@ -32,7 +32,7 @@ class RAGQueryResponse(BaseModel):
 @router.post("/query", response_model=RAGQueryResponse, status_code=status.HTTP_200_OK)
 def process_rag_pipeline(
     payload: RAGQueryRequest,
-    user: User = Depends(require_roles(UserRole.ADMIN, UserRole.TEACHER)),
+    user: User = Depends(require_roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.STUDENT)),
 ):
     """Đường ống RAG Pipeline: Cắt Chunk -> Vector Embedding -> Cosine Similarity Top-K."""
     if not payload.document_text.strip():

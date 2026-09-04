@@ -102,16 +102,18 @@ def test_teacher_overview_success(teacher_headers):
 
 
 
-def test_rag_query_rbac_denied_for_student(student_headers):
-    """Kiểm tra STUDENT không được phép gọi RAG Query API (403)."""
+def test_rag_query_rbac_allowed_for_student(student_headers):
+    """Kiểm tra STUDENT được phép gọi RAG query"""
     payload = {
-        "document_text": "Tài liệu kiểm thử dành cho RAG pipeline.",
+        "document_text": "Tài liệu kiểm thử RAG pipeline cho học sinh.",
         "user_query": "Tài liệu này nói về gì?",
         "chunk_size": 100,
         "top_k": 3
     }
     response = client.post("/api/v1/rag/query", json=payload, headers=student_headers)
-    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.status_code == 200
+    data = response.json()
+    assert "top_k_results" in data
 
 
 def test_rag_query_validation_empty_document(teacher_headers):
