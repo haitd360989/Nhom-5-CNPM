@@ -2,7 +2,17 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import DateTime, String, Text, JSON, Integer, Numeric, Boolean, ForeignKey
+from sqlalchemy import (
+    DateTime,
+    String,
+    Text,
+    JSON,
+    Integer,
+    Numeric,
+    Boolean,
+    ForeignKey,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -53,7 +63,7 @@ class Test(Base):
     __test__ = False  # Ngăn Pytest hiểu nhầm model Test là test class
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     subject: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     score: Mapped[float] = mapped_column(Numeric(5, 2), default=0.00)
     status: Mapped[str] = mapped_column(String(20), default="IN_PROGRESS")
@@ -65,8 +75,8 @@ class UserAnswer(Base):
     __tablename__ = "user_answers"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    test_id: Mapped[int] = mapped_column(ForeignKey("tests.id"), nullable=False)
-    question_id: Mapped[int] = mapped_column(ForeignKey("questions.id"), nullable=False)
+    test_id: Mapped[int] = mapped_column(ForeignKey("tests.id", ondelete="CASCADE"), nullable=False)
+    question_id: Mapped[int] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
     user_answer: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_correct: Mapped[bool] = mapped_column(Boolean, default=False)
     answered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
@@ -76,7 +86,7 @@ class StudyPlan(Base):
     __tablename__ = "study_plans"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     target_score: Mapped[Optional[float]] = mapped_column(Numeric(7, 2), nullable=True)
     total_days: Mapped[int] = mapped_column(Integer, nullable=False, default=30)
@@ -90,10 +100,28 @@ class PlanTask(Base):
     __tablename__ = "plan_tasks"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    plan_id: Mapped[int] = mapped_column(ForeignKey("study_plans.id"), nullable=False)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("study_plans.id", ondelete="CASCADE"), nullable=False)
     day_no: Mapped[int] = mapped_column(Integer, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     type: Mapped[str] = mapped_column(String(20), default="READING")
     ref_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="PENDING")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class StudentParent(Base):
+    __tablename__ = "student_parents"
+    __table_args__ = (
+        UniqueConstraint("parent_id", "student_id", name="uq_parent_student"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    parent_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    student_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=datetime.utcnow
+    )
