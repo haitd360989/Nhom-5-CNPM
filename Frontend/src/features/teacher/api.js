@@ -57,3 +57,13 @@ export const teacherQuestionApi = {
 export const teacherAnalyticsApi = {
   getOverviewAnalytics: (token) => request("/teacher/analytics/overview", token),
 };
+
+export const teacherOverviewApi = {
+  getTeacherOverview: (token) => request("/teacher/overview", token),
+
+  queryKnowledge: (token, payload) =>
+    request("/v1/rag/query", token, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+};
