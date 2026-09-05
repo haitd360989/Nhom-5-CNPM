@@ -10,7 +10,8 @@ from app.teacher_schemas.teacher import (
     QuestionCreate,
     QuestionUpdate,
     QuestionResponse,
-    AnalyticsOverviewResponse
+    AnalyticsOverviewResponse,
+    TeacherOverviewResponse,
 )
 
 router = APIRouter(prefix="/api/teacher", tags=["Teacher Management"])
@@ -119,4 +120,33 @@ def get_analytics_overview(
         total_students=total_students,
         total_completed_tests=total_completed_tests,
         average_score_by_subject=average_score_by_subject
+    )
+    
+
+@router.get("/overview", response_model=TeacherOverviewResponse)
+def get_teacher_overview(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.TEACHER, UserRole.ADMIN))
+):
+    total_questions = db.query(Question).count()
+
+    questions_by_subject_raw = (
+        db.query(Question.subject, func.count(Question.id))
+        .group_by(Question.subject)
+        .all()
+    )
+    questions_by_subject = {
+        (subject if subject else "Unassigned"): count 
+        for subject, count in questions_by_subject_raw
+    }
+
+    total_students = db.query(User).filter(User.role == UserRole.STUDENT).count()
+
+    total_test_attempts = db.query(Test.id).count()
+
+    return TeacherOverviewResponse(
+        total_questions=total_questions,
+        questions_by_subject=questions_by_subject,
+        total_students=total_students,
+        total_test_attempts=total_test_attempts
     )

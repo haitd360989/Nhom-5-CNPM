@@ -35,3 +35,9 @@ class AnalyticsOverviewResponse(BaseModel):
     total_students: int = Field(..., description="Tổng số học sinh có role='STUDENT'")
     total_completed_tests: int = Field(..., description="Tổng số bài test đã hoàn thành status='COMPLETED'")
     average_score_by_subject: Dict[str, float] = Field(..., description="Điểm trung bình chia theo từng môn học")
+    
+class TeacherOverviewResponse(BaseModel):
+    total_questions: int = Field(..., description="Tổng số câu hỏi")
+    questions_by_subject: Dict[str, int] = Field(..., description="Thống kê số câu hỏi theo môn")
+    total_students: int = Field(..., description="Tổng số học sinh")
+    total_test_attempts: int = Field(..., description="Tổng số lượt làm bài thi")
