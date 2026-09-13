@@ -9,7 +9,9 @@ Hệ thống triển khai cơ chế kiểm soát truy cập dựa trên vai trò
 Vai trò (Role) | Email | Mật khẩu | Ghi chú quyền hạn 
 
 **Học sinh (Student)** | `tdh2007.thn@gmail.com` | `12345678` | Tài khoản học sinh chính, làm bài test chẩn đoán, luyện tập thích ứng, hỏi đáp AI Tutor
+
 **Giáo viên (Teacher)** | `teacher.test@ut.edu.vn` | `123123@A` | Quản trị ngân hàng câu hỏi (CRUD), xem thống kê lớp học, tra cứu kho tri thức RAG
+
 **Phụ huynh (Parent)** | `parent@example.com` | `Password123` | Giám sát tiến độ học tập, điểm thi và dự đoán phổ điểm của con (liên kết với học sinh trên)
 
 ### Quy định về cấp phát & liên kết tài khoản:
